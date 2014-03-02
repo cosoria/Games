@@ -7,6 +7,8 @@ namespace RayCaster01
 {
     public interface IGame
     {
+        int ScreenWidth { get; }
+        int ScreenHeight { get; }
         GameWindow Window { get; }
         MouseState Mouse { get; }
         KeyboardState Keyboard { get; }
@@ -15,6 +17,7 @@ namespace RayCaster01
 
         Player Player { get; }
         Map Map { get; }
+        Scene Scene { get; }
         ViewRenderer ViewRenderer { get; }
 
         T TrackDisposable<T>(T disposable) where T : IDisposable;

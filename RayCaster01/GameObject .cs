@@ -16,6 +16,10 @@ namespace RayCaster01
             _game = game;
         }
 
+        public virtual void LoadContent(IGame game)
+        {
+        }
+
         public virtual void Update(GameTime gameTime)
         {
         }

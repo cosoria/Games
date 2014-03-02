@@ -1,5 +1,6 @@
-﻿using System;
-using System.Text;
+﻿// ReSharper disable InconsistentNaming
+
+using System;
 using SharpDX;
 
 
@@ -15,8 +16,9 @@ namespace RayCaster01
     /// </summary>
     public class RayCaster01 : Game, IGame
     {
-         private const int SCREEN_WIDTH = 512;
-         private const int SCREEN_HEIGHT = 384;
+
+        public const int SCREEN_WIDTH = 640;
+        public const int SCREEN_HEIGHT = 480;
 
         private readonly GraphicsDeviceManager _graphicsDeviceManager;
         
@@ -29,7 +31,10 @@ namespace RayCaster01
         private readonly Map _map;
         private readonly Player _player;
         private readonly ViewRenderer _viewRenderer;
+        private readonly Scene _scene;
 
+        public int ScreenWidth { get { return SCREEN_WIDTH; } }
+        public int ScreenHeight { get { return SCREEN_HEIGHT; } }
         public MouseState Mouse { get { return _mouseState; } }
         public KeyboardState Keyboard { get { return _keyboardState; } }
         public GraphicsDeviceManager DeviceManager { get { return _graphicsDeviceManager; } }
@@ -38,12 +43,13 @@ namespace RayCaster01
         public Map Map { get { return _map; }}
         public Player Player { get { return _player; } }
         public ViewRenderer ViewRenderer { get { return _viewRenderer; } }
+        public Scene Scene { get { return _scene; } }
+
         public T TrackDisposable<T>(T disposable) where T : IDisposable
         {
             return ToDisposeContent(disposable);
         }
-
-
+        
         private SpriteBatch spriteBatch;
         private Texture2D ballsTexture;
         private SpriteFont arial16Font;
@@ -68,6 +74,7 @@ namespace RayCaster01
             // Game Objects 
             _map = new Map();
             _player = new Player();
+            _scene = new Scene();
             _viewRenderer = new ViewRenderer();
         }
 
@@ -81,8 +88,9 @@ namespace RayCaster01
             Window.AllowUserResizing = false;
             
             _map.Initialize(this);
-            _viewRenderer.Initialize(this);
             _player.Initialize(this);
+            _scene.Initialize(this);
+            _viewRenderer.Initialize(this);
         }
 
         protected override void LoadContent()
@@ -99,6 +107,12 @@ namespace RayCaster01
             // arial16Font = Content.Load<SpriteFont>("Arial16");
 
             base.LoadContent();
+
+            _map.LoadContent(this);
+            _player.LoadContent(this);
+            _scene.LoadContent(this);
+            _viewRenderer.LoadContent(this);
+            
         }
 
         protected override void Update(GameTime gameTime)
@@ -113,8 +127,9 @@ namespace RayCaster01
             _mouseState = _mouse.GetState();
 
             _map.Update(gameTime);
-            _viewRenderer.Update(gameTime);
             _player.Update(gameTime);
+            _scene.Update(gameTime);
+            _viewRenderer.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
@@ -126,9 +141,10 @@ namespace RayCaster01
             GraphicsDevice.Clear(Color.Black);
 
             _map.Draw(gameTime);
-            _viewRenderer.Draw(gameTime);
             _player.Draw(gameTime);
-
+            _scene.Draw(gameTime);
+            _viewRenderer.Draw(gameTime);
+            
             base.Draw(gameTime);
             
             /*
