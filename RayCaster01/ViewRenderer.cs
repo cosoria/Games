@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System;
+using System.Linq.Expressions;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.Direct3D;
@@ -88,26 +89,119 @@ namespace RayCaster01
             _basicEffect.CurrentTechnique.Passes[0].Apply();
             
             _primitiveBatch.Begin();
-
-            foreach (var line in Game.Scene.VerticalLines)
-            {
-                DrawLine(line.Start.X + 1, line.Start.Y, line.End.X + 1, line.End.Y, line.Color);
-            }
             
-
-            //DrawLine(0, 0, 100, 100, Color.Blue);
-            //DrawLine(110, 100, 20, 110, Color.Yellow);
-            //DrawLine(300, 150, 200, 150, Color.Aqua);
-            //DrawLine(350, 100, 200, 380, Color.DarkGreen);
-            //DrawLine(150, 100, 200, 100, Color.DarkOrange);
-
-            //_renderTarget.
-            
+            DrawInfoPanel();
+            DrawRays();
+            DrawWalls();
             
             _primitiveBatch.End();
 
            
         }
+
+        private void DrawWalls()
+        {
+            foreach (var line in Game.Scene.VerticalLines)
+            {
+                DrawLine(line.Start.X + 1, line.Start.Y, line.End.X + 1, line.End.Y, line.Color);
+            }
+        }
+
+        private void DrawRays()
+        {
+            // Draw Player Position 
+            float h = Game.ScreenHeight;
+            float w = Game.ScreenWidth;
+            float centerY = h/2;
+            float centerX = w/2;
+            float step = h / 24;
+            float worldLeft = centerX - centerY;
+            float worldTop = 1;
+            float worldRight = centerX + centerY;
+            float worldBottom = h;
+
+            /*
+            var player = new Vector2(this.Game.Player.Position.X * step + worldLeft, this.Game.Player.Position.Y * step + worldTop);
+            var offset = new Vector2(player.X + (Game.Player.Direction.X * 10), player.Y + (Game.Player.Direction.Y * 10));
+            DrawLine(player, offset, Color.Yellow);
+            */
+
+            foreach (var line in Game.Scene.Rays)
+            {
+
+                DrawLine(line.Start.X * step + worldLeft, 
+                         line.Start.Y * step + worldTop, 
+                         line.End.X * step + worldLeft, 
+                         line.End.Y * step + worldTop, 
+                         Color.White);
+            }
+        }
+
+        private void DrawInfoPanel()
+        {
+            float h = Game.ScreenHeight;
+            float w = Game.ScreenWidth;
+            float centerY = h/2;
+            float centerX = w/2;
+            float step = h / 24;
+
+            var center = new Vector2(centerX, centerY);
+
+            // Draw World Bounds
+            float worldLeft = centerX - centerY;
+            float worldTop = 1;
+            float worldRight = centerX + centerY;
+            float worldBottom = h;
+
+            // Draw Player Position 
+            var player = new Vector2(this.Game.Player.Position.Y * step + worldLeft, this.Game.Player.Position.X * step + worldTop);
+            var offset = new Vector2(player.X + (Game.Player.Direction.X * 10), player.Y + (Game.Player.Direction.Y * 10));
+            DrawLine(player, offset, Color.Yellow);
+            
+            DrawLine(worldLeft, worldTop, worldRight, worldTop , Color.White);
+            DrawLine(worldLeft, worldBottom, worldRight, worldBottom , Color.White);
+            DrawLine(worldLeft, 1, worldLeft, h, Color.White);
+            DrawLine(worldRight, 1, worldRight, h, Color.White);
+
+            // Draw World Grid
+            
+            float startX = worldLeft;
+            float startY = worldTop;
+            for (int i = 0; i < 24; i++)
+            {
+                startX += step;
+                startY += step;
+                DrawLine(worldLeft, startY, worldRight, startY, Color.Gray);
+                DrawLine(startX, worldTop, startX, worldBottom, Color.Gray);
+            }
+
+            // Draw Map Walls 
+            startX = worldLeft;
+            startY = worldTop;
+            for (int i = 0; i < 24; i++)
+            {
+                startX = worldLeft;
+                for (int j = 0; j < 24; j++)
+                {
+                    if (Game.Map.World[j, i] > 0)
+                    {
+                        var color = this.Game.Scene.GetMapColor(Game.Map.World[j, i]);
+
+                        DrawLine(startX, startY, startX + step, startY + step, color);
+                        DrawLine(startX + step, startY, startX, startY + step, color);
+                    }
+                    startX += step;
+                }
+                startY += step;  
+                
+                DrawLine(worldLeft, startY, worldRight, startY, Color.Gray);
+                DrawLine(startX, worldTop, startX, worldBottom, Color.Gray);
+            }
+
+            
+        }
+
+        
 
         public void DrawLine(float x1, float y1, float x2, float y2, Color color)
         {

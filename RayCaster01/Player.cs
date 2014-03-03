@@ -1,12 +1,27 @@
-﻿using SharpDX;
+﻿using System;
+using System.Linq;
+using SharpDX;
 using SharpDX.Toolkit;
+using SharpDX.Toolkit.Input;
 
 namespace RayCaster01
 {
     public class Player : GameObject
     {
+        private double _rotationSpeed;
+        private double _walkingSpeed;
         private Vector2 _position;
         private Vector2 _direction;
+
+        public double RotationSpeed
+        {
+            get { return _rotationSpeed; }
+        }
+
+        public double WalkingSpeed
+        {
+            get { return _walkingSpeed; }
+        }
 
         public Vector2 Position
         {
@@ -24,50 +39,71 @@ namespace RayCaster01
 
             _position.X = 12;
             _position.Y = 12;
-            _direction.X = -1;
+            _direction.X = 1;
             _direction.Y = 0;
+            //speed modifiers
+            _walkingSpeed = 0.05; //the constant value is in squares/second
+            _rotationSpeed = 0.05; //the constant value is in radians/second
         }
 
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
 
-    //        // Update position and direction from keyboard input 
-    //        readKeys();
-    ////move forward if no wall in front of you
-    //if (keyDown(SDLK_UP))
-    //{
-    //  if(worldMap[int(posX + dirX * moveSpeed)][int(posY)] == false) posX += dirX * moveSpeed;
-    //  if(worldMap[int(posX)][int(posY + dirY * moveSpeed)] == false) posY += dirY * moveSpeed;
-    //}
-    ////move backwards if no wall behind you
-    //if (keyDown(SDLK_DOWN))
-    //{
-    //  if(worldMap[int(posX - dirX * moveSpeed)][int(posY)] == false) posX -= dirX * moveSpeed;
-    //  if(worldMap[int(posX)][int(posY - dirY * moveSpeed)] == false) posY -= dirY * moveSpeed;
-    //}
-    ////rotate to the right   
-    //if (keyDown(SDLK_RIGHT))
-    //{
-    //  //both camera direction and camera plane must be rotated
-    //  double oldDirX = dirX;
-    //  dirX = dirX * cos(-rotSpeed) - dirY * sin(-rotSpeed);
-    //  dirY = oldDirX * sin(-rotSpeed) + dirY * cos(-rotSpeed);
-    //  double oldPlaneX = planeX;
-    //  planeX = planeX * cos(-rotSpeed) - planeY * sin(-rotSpeed);
-    //  planeY = oldPlaneX * sin(-rotSpeed) + planeY * cos(-rotSpeed);
-    //}
-    ////rotate to the left
-    //if (keyDown(SDLK_LEFT))
-    //{
-    //  //both camera direction and camera plane must be rotated
-    //  double oldDirX = dirX;
-    //  dirX = dirX * cos(rotSpeed) - dirY * sin(rotSpeed);
-    //  dirY = oldDirX * sin(rotSpeed) + dirY * cos(rotSpeed);
-    //  double oldPlaneX = planeX;
-    //  planeX = planeX * cos(rotSpeed) - planeY * sin(rotSpeed);
-    //  planeY = oldPlaneX * sin(rotSpeed) + planeY * cos(rotSpeed);
-    //}
+            var pressedKeys = Game.Keyboard.GetPressedKeys();
+
+            // Move Forward 
+            if (pressedKeys.Contains(Keys.Up))
+            {
+                if (Game.Map.World[(int)(_position.X + _direction.X * _walkingSpeed), (int)_position.Y] == 0)
+                    _position.X += (float)(_direction.X * _walkingSpeed);
+
+                if (Game.Map.World[(int)_position.X, (int)(_position.Y + _direction.Y * _walkingSpeed)] == 0)
+                    _position.Y += (float)(_direction.Y * _walkingSpeed);
+            }
+
+            // Move Backwards 
+            if (pressedKeys.Contains(Keys.Down))
+            {
+                if (Game.Map.World[(int)(_position.X - _direction.X * _walkingSpeed), (int)_position.Y] == 0)
+                    _position.X -= (float)(_direction.X * _walkingSpeed);
+
+                if (Game.Map.World[(int)_position.X, (int)(_position.Y - _direction.Y * _walkingSpeed)] == 0)
+                    _position.Y -= (float)(_direction.Y * _walkingSpeed);
+            }
+
+            // Rotate Left 
+            if (pressedKeys.Contains(Keys.Left))
+            {
+                //both camera direction and camera plane must be rotated
+                double oldDirX = _direction.X;
+                double oldDirY = _direction.Y;
+
+                _direction.X = (float)(oldDirX * Math.Cos(_rotationSpeed) - _direction.Y * Math.Sin(_rotationSpeed));
+                _direction.Y = (float)(oldDirX * Math.Sin(_rotationSpeed) + oldDirY * Math.Cos(_rotationSpeed));
+
+                Game.Scene.RotatePlaneLeft();
+                //  double oldPlaneX = planeX;
+                //  planeX = planeX * cos(rotSpeed) - planeY * sin(rotSpeed);
+                //  planeY = oldPlaneX * sin(rotSpeed) + planeY * cos(rotSpeed);
+            }
+
+            // Rotate Right 
+            if (pressedKeys.Contains(Keys.Right))
+            {
+                //both camera direction and camera plane must be rotated
+                double oldDirX = _direction.X;
+                double oldDirY = _direction.Y;
+
+                _direction.X = (float)(oldDirX * Math.Cos(-_rotationSpeed) - _direction.Y * Math.Sin(-_rotationSpeed));
+                _direction.Y = (float)(oldDirX * Math.Sin(-_rotationSpeed) + oldDirY * Math.Cos(-_rotationSpeed));
+
+                Game.Scene.RotatePlaneRight();
+            }
+
+
+           
+    
 
         }
     }

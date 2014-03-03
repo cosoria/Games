@@ -51,6 +51,18 @@ namespace RayCaster01
             Set(start.X, start.Y, end.X, end.Y, color);
         }
 
+        public void SetStart(float x, float y)
+        {
+            _start.X = x;
+            _start.Y = y;
+        }
+
+        public void SetEnd(float x, float y)
+        {
+            _end.X = x;
+            _end.Y = y;
+        }
+
         public void Set(float x1, float y1, float x2, float y2, Color color)
         {
             _start.X = x1;

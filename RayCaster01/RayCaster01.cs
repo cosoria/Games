@@ -10,6 +10,7 @@ namespace RayCaster01
     using SharpDX.Toolkit;
     using SharpDX.Toolkit.Graphics;
     using SharpDX.Toolkit.Input;
+    using System.Text;
 
     /// <summary>
     /// Simple RayCaster01 game using SharpDX.Toolkit.
@@ -50,9 +51,9 @@ namespace RayCaster01
             return ToDisposeContent(disposable);
         }
         
-        private SpriteBatch spriteBatch;
+        private SpriteBatch _spriteBatch;
         private Texture2D ballsTexture;
-        private SpriteFont arial16Font;
+        private SpriteFont _arial16Font;
 
         
         public RayCaster01()
@@ -96,7 +97,7 @@ namespace RayCaster01
         protected override void LoadContent()
         {
             // Instantiate a SpriteBatch
-            // spriteBatch = ToDisposeContent(new SpriteBatch(GraphicsDevice));
+            _spriteBatch = ToDisposeContent(new SpriteBatch(GraphicsDevice));
 
             // Loads the balls texture (32 textures (32x32) stored vertically => 32 x 1024 ).
             // The [Balls.dds] file is defined with the build action [ToolkitTexture] in the project
@@ -104,7 +105,7 @@ namespace RayCaster01
 
             // Loads a sprite font
             // The [Arial16.xml] file is defined with the build action [ToolkitFont] in the project
-            // arial16Font = Content.Load<SpriteFont>("Arial16");
+            _arial16Font = Content.Load<SpriteFont>("Arial16");
 
             base.LoadContent();
 
@@ -144,17 +145,24 @@ namespace RayCaster01
             _player.Draw(gameTime);
             _scene.Draw(gameTime);
             _viewRenderer.Draw(gameTime);
+
+
             
             base.Draw(gameTime);
             
-            /*
+            
             // ------------------------------------------------------------------------
             // Draw the some 2d text
             // ------------------------------------------------------------------------
-            spriteBatch.Begin();
-            var text = new StringBuilder("This text is displayed with SpriteBatch").AppendLine();
+            _spriteBatch.Begin();
+            var text = new StringBuilder();
+
+            text.AppendFormat("Position [{0},{1}]", _player.Position.X, _player.Position.Y);
+            text.AppendLine();
+            text.AppendFormat("Direction [{0},{1}]", _player.Direction.X, _player.Direction.Y);
 
             // Display pressed keys
+            /*
             var pressedKeys = _keyboardState.GetPressedKeys();
             text.Append("Key Pressed: [");
             foreach (var key in pressedKeys)
@@ -166,33 +174,11 @@ namespace RayCaster01
 
             // Display _mouse coordinates and _mouse button status
             text.AppendFormat("Mouse ({0},{1}) Left: {2}, Right {3}", _mouseState.X, _mouseState.Y, _mouseState.Left, _mouseState.Right).AppendLine();
-
-            spriteBatch.DrawString(arial16Font, text.ToString(), new Vector2(16, 16), Color.White);
-            spriteBatch.End();
-
-            // ------------------------------------------------------------------------
-            // Use SpriteBatch to draw some balls on the screen using NonPremultiplied mode
-            // as the sprite texture used is not premultiplied
-            // ------------------------------------------------------------------------
-            spriteBatch.Begin(SpriteSortMode.Deferred, GraphicsDevice.BlendStates.NonPremultiplied);
-            for (int i = 0; i < 40; i++)
-            {
-                var posX = (float)Math.Cos(time * 4.5f + i * 0.1f) * 60.0f + 136.0f;
-                var posY = GraphicsDevice.BackBuffer.Height * 2.0f / 3.0f + 100.0f * (float)Math.Sin(time * 10.0f + i * 0.4f);
-
-                spriteBatch.Draw(
-                    ballsTexture,
-                    new Vector2(posX, posY),
-                    new Rectangle(0, 0, 32, 32),
-                    Color.White,
-                    0.0f,
-                    new Vector2(16, 16),
-                    Vector2.One,
-                    SpriteEffects.None,
-                    0f);
-            }
-            spriteBatch.End();
             */
+            _spriteBatch.DrawString(_arial16Font, text.ToString(), new Vector2(16, 16), Color.White);
+            _spriteBatch.End();
+
+            
 
 
             
