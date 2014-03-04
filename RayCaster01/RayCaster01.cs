@@ -135,6 +135,8 @@ namespace RayCaster01
 
         protected override void Draw(GameTime gameTime)
         {
+            base.Draw(gameTime);
+
             // Use time in seconds directly
             var time = (float)gameTime.TotalGameTime.TotalSeconds;
 
@@ -145,11 +147,6 @@ namespace RayCaster01
             _player.Draw(gameTime);
             _scene.Draw(gameTime);
             _viewRenderer.Draw(gameTime);
-
-
-            
-            base.Draw(gameTime);
-            
             
             // ------------------------------------------------------------------------
             // Draw the some 2d text
@@ -160,27 +157,9 @@ namespace RayCaster01
             text.AppendFormat("Position [{0},{1}]", _player.Position.X, _player.Position.Y);
             text.AppendLine();
             text.AppendFormat("Direction [{0},{1}]", _player.Direction.X, _player.Direction.Y);
-
-            // Display pressed keys
-            /*
-            var pressedKeys = _keyboardState.GetPressedKeys();
-            text.Append("Key Pressed: [");
-            foreach (var key in pressedKeys)
-            {
-                text.Append(key.ToString());
-                text.Append(" ");
-            }
-            text.Append("]").AppendLine();
-
-            // Display _mouse coordinates and _mouse button status
-            text.AppendFormat("Mouse ({0},{1}) Left: {2}, Right {3}", _mouseState.X, _mouseState.Y, _mouseState.Left, _mouseState.Right).AppendLine();
-            */
+            
             _spriteBatch.DrawString(_arial16Font, text.ToString(), new Vector2(16, 16), Color.White);
             _spriteBatch.End();
-
-            
-
-
             
         }
     }

@@ -58,8 +58,7 @@ namespace RayCaster01
         {
             var w = Game.ScreenWidth;
             var h = Game.ScreenHeight;
-            var camera = new Vector2(0, 0);
-            
+           
             var pos = new Vector2(Game.Player.Position.X, Game.Player.Position.Y);
             var dir = new Vector2(Game.Player.Direction.X, Game.Player.Direction.Y);
 
@@ -70,25 +69,27 @@ namespace RayCaster01
             var deltaDist = new Vector2(0, 0);
        
 
-            double cameraX = 0;
+            
 
             for (var x = 0; x < Game.ScreenWidth; x++)
             {
+                float cameraX = 0.0f;
+
                 //calculate ray position and direction 
-                camera.X = ((2.0f * x) / w) - 1.0f; //x-coordinate in camera space
+                cameraX = ((2.0f * x) / w) - 1.0f; //x-coordinate in camera space
 
                 // Ray start at the player position 
                 ray.X = pos.X;
                 ray.Y = pos.Y;
                 
-                map.X = ray.Y;
-                map.Y = ray.X;
+                map.X = ray.X;
+                map.Y = ray.Y;
 
-                _rays[x].SetStart(map.Y, map.X);
+                _rays[x].SetStart(map.X, map.Y);
 
                 // Ray direction goes from left to right using the camera plane 
-                rayDir.X = dir.X + _plane.X * camera.X;
-                rayDir.Y = dir.Y + _plane.Y * camera.X;
+                rayDir.X = dir.X + _plane.X * cameraX;
+                rayDir.Y = dir.Y + _plane.Y * cameraX;
 
                 //length of ray from current position to next x or y-side
                 double sideDistX;
@@ -148,15 +149,14 @@ namespace RayCaster01
                     }
 
                     //Check if ray has hit a wall
-                    //if (Game.Map.World[(int) map.X, (int) map.Y] > 0)
-                    if (Game.Map.World[(int) map.Y, (int) map.X] > 0)
+                    if (Game.Map.GetBlock(map.X, map.Y) > 0)
                     {
                         hit = 1;
                     }
                     
                 }
  
-                _rays[x].SetEnd(map.Y, map.X);
+                _rays[x].SetEnd(map.X, map.Y);
 
                 //Calculate distance projected on camera direction (oblique distance will give fisheye effect!)
                 if (side == 0)
@@ -166,7 +166,6 @@ namespace RayCaster01
                 else
                 {
                     perpWallDist = Math.Abs((map.Y - ray.Y + (1 - stepY) / 2) / rayDir.Y);
-                    
                 }
       
                 //Calculate height of line to draw on screen
@@ -179,16 +178,8 @@ namespace RayCaster01
                 if(drawEnd >= h) drawEnd = h - 1;
         
                 //choose wall color
-                // Color color = GetMapColor(Game.Map.World[(int) map.X, (int) map.Y]);
-                Color color = GetMapColor(Game.Map.World[(int) map.Y, (int) map.X], side);
+                Color color = GetWallColor(Game.Map.GetBlock(map.X, map.Y), side);
                 
-       
-                //give x and y sides different brightness
-                //if (side == 1)
-                //{
-                //    color.R = color.R / 2;
-                //}
-
                 //draw the pixels of the stripe as a vertical line
                 SetVerticalLine(x, drawStart, drawEnd, color);
                  
@@ -197,7 +188,7 @@ namespace RayCaster01
 
         }
 
-        public Color GetMapColor(int color, int side = 0)
+        public Color GetWallColor(int color, int side = 0)
         {
             if (side == 0)
             {
@@ -228,28 +219,13 @@ namespace RayCaster01
         {
             _verticalLines[x].Set(x, start, x, end, color);
         }
-
-        public void RotatePlaneRight()
+        
+        public void RotateCameraPlane(float rotationAngle)
         {
-            double oldPlaneX = _plane.X;
-            double oldPlaneY = _plane.Y;
-
+            var rotated = _plane.Rotate(rotationAngle);
             
-            _plane.X = (float)(oldPlaneX * Math.Cos(-Game.Player.RotationSpeed) - oldPlaneY * Math.Sin(-Game.Player.RotationSpeed));
-            _plane.Y = (float)(oldPlaneX * Math.Sin(-Game.Player.RotationSpeed) + oldPlaneY * Math.Cos(-Game.Player.RotationSpeed));
-        }
-
-        public void RotatePlaneLeft()
-        {
-            //  double oldPlaneX = planeX;
-            //  planeX = planeX * cos(rotSpeed) - planeY * sin(rotSpeed);
-            //  planeY = oldPlaneX * sin(rotSpeed) + planeY * cos(rotSpeed);
-            double oldPlaneX = _plane.X;
-            double oldPlaneY = _plane.Y;
-
-
-            _plane.X = (float)(oldPlaneX * Math.Cos(Game.Player.RotationSpeed) - oldPlaneY * Math.Sin(Game.Player.RotationSpeed));
-            _plane.Y = (float)(oldPlaneX * Math.Sin(Game.Player.RotationSpeed) + oldPlaneY * Math.Cos(Game.Player.RotationSpeed));
+            _plane.X = rotated.X;
+            _plane.Y = rotated.Y;
         }
     }
 }

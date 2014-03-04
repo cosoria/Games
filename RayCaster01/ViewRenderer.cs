@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Linq.Expressions;
 using SharpDX;
 using SharpDX.Direct2D1;
@@ -7,6 +8,7 @@ using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
+using SharpDX.Toolkit.Input;
 
 
 namespace RayCaster01
@@ -15,6 +17,12 @@ namespace RayCaster01
     {
         private int _width;
         private int _height;
+        private bool _checkF10;
+        private bool _checkF11;
+        private bool _checkF12;
+        private bool _drawMap;
+        private bool _drawRays;
+        private bool _drawWalls = true;
         private SpriteBatch _spriteBatch;
         private RenderTarget _renderTarget;
         private PrimitiveBatch<VertexPositionColor> _primitiveBatch;
@@ -33,47 +41,33 @@ namespace RayCaster01
             _primitiveBatch = new PrimitiveBatch<VertexPositionColor>(game.Device);
             _basicEffect = new BasicEffect(game.Device);
             _basicEffect.VertexColorEnabled = true;
-        
-            //var f = new SharpDX.Direct2D1.Factory();
-            //var s = ((SharpDX.Direct3D11.Texture2D) Game.Device.Presenter.BackBuffer).QueryInterface<Surface>();
-            //var p = new RenderTargetProperties(new SharpDX.Direct2D1.PixelFormat(Format.R32G32B32A32_Float, AlphaMode.Premultiplied));
-            //_renderTarget = new RenderTarget(f, s, p);
+        }
 
-            //var d = new SharpDX.Direct2D1.Device(dxgiDevice2);
+        public override void Update(GameTime gameTime)
+        {
+            base.Update(gameTime);
 
-            //// SwapChain description
-            //SwapChainDescription desc = new SwapChainDescription()
-            //{
-            //    BufferCount = 1,
-            //    ModeDescription =
-            //        new ModeDescription(form.ClientSize.Width, form.ClientSize.Height,
-            //                            new Rational(60, 1), Format.R8G8B8A8_UNorm),
-            //    IsWindowed = true,
-            //    OutputHandle = form.Handle,
-            //    SampleDescription = new SampleDescription(1, 0),
-            //    SwapEffect = SwapEffect.Discard,
-            //    Usage = Usage.RenderTargetOutput
-            //};
+            var keys = Game.Keyboard.GetPressedKeys();
 
-            //// Create Device and SwapChain
-            //Device1.CreateWithSwapChain(DriverType.Hardware, DeviceCreationFlags.BgraSupport, desc, FeatureLevel.Level_10_0, out device, out swapChain);
+           
+            _checkF10 = Game.Keyboard.IsKeyDown(Keys.F10);
+            _checkF11 = Game.Keyboard.IsKeyDown(Keys.F11);
+            _checkF12 = Game.Keyboard.IsKeyDown(Keys.F12);
 
-            //var d2dFactory = new SharpDX.Direct2D1.Factory();
+            if (keys.Contains(Keys.F10))
+            {
+                _drawMap = !_drawMap;
+            }
 
-            //// Ignore all windows events
-            //Factory factory = swapChain.GetParent<Factory>();
-            //factory.MakeWindowAssociation(form.Handle, WindowAssociationFlags.IgnoreAll);
+            if (keys.Contains(Keys.F11))
+            {
+                _drawRays = !_drawRays;
+            }
 
-            //// New RenderTargetView from the backbuffer
-            //Texture2D backBuffer = Texture2D.FromSwapChain<Texture2D>(swapChain, 0);
-            //RenderTargetView renderView = new RenderTargetView(device, backBuffer);
-
-            //Surface surface = backBuffer.QueryInterface<Surface>();
-
-            //RenderTarget d2dRenderTarget = new RenderTarget(d2dFactory, surface,
-            //                                                new RenderTargetProperties(new SharpDX.Direct2D1.PixelFormat(Format.Unknown, AlphaMode.Premultiplied)));
-
-
+            if (keys.Contains(Keys.F12))
+            {
+                _drawWalls = !_drawWalls;
+            }
         }
 
         public override void Draw(GameTime gameTime)
@@ -89,14 +83,23 @@ namespace RayCaster01
             _basicEffect.CurrentTechnique.Passes[0].Apply();
             
             _primitiveBatch.Begin();
-            
-            DrawInfoPanel();
-            DrawRays();
-            DrawWalls();
-            
-            _primitiveBatch.End();
 
-           
+            if (_drawMap)
+            {
+                DrawMap();
+            }
+
+            if (_drawRays)
+            {
+                DrawRays();
+            }
+
+            if (_drawWalls)
+            {
+                DrawWalls();
+            }
+
+            _primitiveBatch.End();
         }
 
         private void DrawWalls()
@@ -137,7 +140,7 @@ namespace RayCaster01
             }
         }
 
-        private void DrawInfoPanel()
+        private void DrawMap()
         {
             float h = Game.ScreenHeight;
             float w = Game.ScreenWidth;
@@ -178,14 +181,14 @@ namespace RayCaster01
             // Draw Map Walls 
             startX = worldLeft;
             startY = worldTop;
-            for (int i = 0; i < 24; i++)
+            for (int y = 0; y < 24; y++)
             {
                 startX = worldLeft;
-                for (int j = 0; j < 24; j++)
+                for (int x = 0; x < 24; x++)
                 {
-                    if (Game.Map.World[j, i] > 0)
+                    if (Game.Map.GetBlock(x, y) > 0)
                     {
-                        var color = this.Game.Scene.GetMapColor(Game.Map.World[j, i]);
+                        var color = Game.Scene.GetWallColor(Game.Map.GetBlock(x, y));
 
                         DrawLine(startX, startY, startX + step, startY + step, color);
                         DrawLine(startX + step, startY, startX, startY + step, color);
