@@ -56,8 +56,8 @@ namespace RayCaster01
 
         private void DoRayCasting(GameTime gameTime)
         {
-            var w = Game.ScreenWidth;
-            var h = Game.ScreenHeight;
+            float w = Game.ScreenWidth;
+            float h = Game.ScreenHeight;
            
             var pos = new Vector2(Game.Player.Position.X, Game.Player.Position.Y);
             var dir = new Vector2(Game.Player.Direction.X, Game.Player.Direction.Y);
@@ -68,9 +68,6 @@ namespace RayCaster01
             var sideDist = new Vector2(0, 0);
             var deltaDist = new Vector2(0, 0);
        
-
-            
-
             for (var x = 0; x < Game.ScreenWidth; x++)
             {
                 float cameraX = 0.0f;
@@ -94,7 +91,7 @@ namespace RayCaster01
                 //length of ray from current position to next x or y-side
                 double sideDistX;
                 double sideDistY;
-                double perpWallDist;
+                float perpWallDist;
 
                 //length of ray from one x or y-side to next x or y-side
                 deltaDist.X = (float)Math.Sqrt(1.0 + (rayDir.Y * rayDir.Y) / (rayDir.X * rayDir.X));
@@ -161,27 +158,27 @@ namespace RayCaster01
                 //Calculate distance projected on camera direction (oblique distance will give fisheye effect!)
                 if (side == 0)
                 {
-                    perpWallDist = Math.Abs((map.X - ray.X + (1 - stepX) / 2) / rayDir.X);
+                    perpWallDist = (map.X - ray.X + (1.0f - stepX) / 2.0f) / rayDir.X;
                 }
                 else
                 {
-                    perpWallDist = Math.Abs((map.Y - ray.Y + (1 - stepY) / 2) / rayDir.Y);
+                    perpWallDist = (map.Y - ray.Y + (1.0f - stepY) / 2.0f) / rayDir.Y;
                 }
       
                 //Calculate height of line to draw on screen
-                int lineHeight = (int)Math.Abs(h / perpWallDist);
+                float lineHeight = h / perpWallDist;
        
                 //calculate lowest and highest pixel to fill in current stripe
-                int drawStart = -lineHeight / 2 + h / 2;
+                float drawStart = -lineHeight / 2.0f + h / 2.0f;
                 if(drawStart < 0) drawStart = 0;
-                int drawEnd = lineHeight / 2 + h / 2;
+                float drawEnd = lineHeight / 2.0f + h / 2.0f;
                 if(drawEnd >= h) drawEnd = h - 1;
         
                 //choose wall color
                 Color color = GetWallColor(Game.Map.GetBlock(map.X, map.Y), side);
                 
                 //draw the pixels of the stripe as a vertical line
-                SetVerticalLine(x, drawStart, drawEnd, color);
+                SetVerticalLine(x, (int)drawStart, (int)drawEnd, color);
                  
             }  
 
