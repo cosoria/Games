@@ -100,7 +100,16 @@ namespace RayCaster01
                 DrawWalls();
             }
 
+            DrawHorizon();
+
             _primitiveBatch.End();
+        }
+
+        private void DrawHorizon()
+        {
+            var half = Game.ScreenHeight / 2;
+            DrawRectangle(0, 0, Game.ScreenWidth, half, Color.LightGray);
+            DrawRectangle(0, half, Game.ScreenWidth, Game.ScreenHeight, Color.SlateGray);
         }
 
         private void DrawWalls()
@@ -229,7 +238,6 @@ namespace RayCaster01
             
         }
 
-        
 
         public void DrawLine(float x1, float y1, float x2, float y2, Color color)
         {
@@ -242,6 +250,16 @@ namespace RayCaster01
             var vpc2 = new VertexPositionColor(new Vector3(v2.X, v2.Y, 0), color);
 
             _primitiveBatch.DrawLine(vpc1, vpc2);
+        }
+
+        private void DrawRectangle(float x, float y, float x1, float y1, Color color)
+        {
+            var vpc1 = new VertexPositionColor(new Vector3(x, y, 0), color); 
+            var vpc2 = new VertexPositionColor(new Vector3(x1, y, 0), color); 
+            var vpc3 = new VertexPositionColor(new Vector3(x1, y1, 0), color); 
+            var vpc4 = new VertexPositionColor(new Vector3(x, y1, 0), color); 
+
+            _primitiveBatch.DrawQuad(vpc1, vpc2, vpc3, vpc4);
         }
     }
 }

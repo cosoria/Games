@@ -1,5 +1,6 @@
 ﻿using System;
 using SharpDX.Toolkit;
+using SharpDX.Toolkit.Content;
 using SharpDX.Toolkit.Graphics;
 using SharpDX.Toolkit.Input;
 
@@ -14,6 +15,7 @@ namespace RayCaster01
         KeyboardState Keyboard { get; }
         GraphicsDeviceManager DeviceManager { get; }
         GraphicsDevice Device { get; }
+        ContentManager Content { get;  }
 
         Player Player { get; }
         Map Map { get; }

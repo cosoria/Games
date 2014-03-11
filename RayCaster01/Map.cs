@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Security.Policy;
 using SharpDX.Toolkit;
+using SharpDX.Toolkit.Graphics;
 
 namespace RayCaster01
 {
@@ -37,6 +38,9 @@ namespace RayCaster01
            new []  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
         };
 
+        private Texture2D[] _wallTextures = new Texture2D[8];
+        private Texture2D[] _objectTexttures = new Texture2D[3];
+
         public int[][] World
         {
             get { return _map; }
@@ -55,6 +59,14 @@ namespace RayCaster01
             }
 
             return _map[x][y];
+        }
+
+        public override void LoadContent(IGame game)
+        {
+            base.LoadContent(game);
+
+            var blueStone = Game.Content.Load<Texture2D>("bluestone");
+
         }
     }
 }

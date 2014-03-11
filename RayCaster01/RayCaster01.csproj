@@ -56,7 +56,19 @@
     <Compile Include="Vector2Extensions.cs" />
     <Compile Include="ViewRenderer.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ToolkitTexture Include="Content\barrel.png" />
+    <ToolkitTexture Include="Content\bluestone.png" />
+    <ToolkitTexture Include="Content\colorstone.png" />
+    <ToolkitTexture Include="Content\eagle.png" />
+    <ToolkitTexture Include="Content\greenlight.png" />
+    <ToolkitTexture Include="Content\greystone.png" />
+    <ToolkitTexture Include="Content\mossy.png" />
+    <ToolkitTexture Include="Content\pillar.png" />
+    <ToolkitTexture Include="Content\purplestone.png" />
+    <ToolkitTexture Include="Content\redbrick.png" />
+    <ToolkitTexture Include="Content\wood.png" />
+  </ItemGroup>
   <ItemGroup>
     <ToolkitFont Include="Content\Arial16.xml" />
     <ToolkitTexture Include="Content\Balls.dds" />
