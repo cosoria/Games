@@ -38,8 +38,8 @@ namespace RayCaster01
             base.Initialize(game);
 
             // Initial Player Position 
-            _position.X = 12;
-            _position.Y = 12;
+            _position.X = 6.50f;
+            _position.Y = 16.50f;
 
             // Initial Player Direction 
             _direction.X = -1;

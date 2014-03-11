@@ -86,6 +86,7 @@ namespace RayCaster01
 
             if (_drawMap)
             {
+                DrawPlayer();
                 DrawMap();
             }
 
@@ -104,9 +105,12 @@ namespace RayCaster01
 
         private void DrawWalls()
         {
+            float h = Game.ScreenHeight;
+            float w = Game.ScreenWidth;
+
             foreach (var line in Game.Scene.VerticalLines)
             {
-                DrawLine(line.Start.X + 1, line.Start.Y, line.End.X + 1, line.End.Y, line.Color);
+                DrawLine( w - line.Start.X + 1, line.Start.Y,  w - line.End.X + 1, line.End.Y, line.Color);
             }
         }
 
@@ -131,13 +135,38 @@ namespace RayCaster01
 
             foreach (var line in Game.Scene.Rays)
             {
-
                 DrawLine(line.Start.X * step + worldLeft, 
-                         line.Start.Y * step + worldTop, 
-                         line.End.X * step + worldLeft, 
-                         line.End.Y * step + worldTop, 
-                         Color.White);
+                        line.Start.Y * step + worldTop,  
+                        line.End.X * step + worldLeft,  
+                        -(line.End.Y * step) + worldBottom, 
+                        Color.White);
+
+                //DrawLine(line.Start.X * step + worldLeft, 
+                //         line.Start.Y * step + worldTop, 
+                //         line.End.X * step + worldLeft, 
+                //         line.End.Y * step + worldTop, 
+                //         Color.White);
             }
+        }
+
+        private void DrawPlayer()
+        {
+            float h = Game.ScreenHeight;
+            float w = Game.ScreenWidth;
+            float centerY = h / 2;
+            float centerX = w / 2;
+            float step = h / 24;
+
+            // Draw World Bounds
+            float worldLeft = centerX - centerY;
+            float worldTop = 1;
+            float worldRight = centerX + centerY;
+            float worldBottom = h;
+
+            // Draw Player Position 
+            var player = new Vector2(this.Game.Player.Position.X * step + worldLeft, this.Game.Player.Position.Y * step + worldTop);
+            var offset = new Vector2(player.X + (Game.Player.Direction.X * 10), player.Y + (Game.Player.Direction.Y * 10));
+            DrawLine(player, offset, Color.Yellow);
         }
 
         private void DrawMap()
@@ -156,11 +185,7 @@ namespace RayCaster01
             float worldRight = centerX + centerY;
             float worldBottom = h;
 
-            // Draw Player Position 
-            var player = new Vector2(this.Game.Player.Position.Y * step + worldLeft, this.Game.Player.Position.X * step + worldTop);
-            var offset = new Vector2(player.X + (Game.Player.Direction.X * 10), player.Y + (Game.Player.Direction.Y * 10));
-            DrawLine(player, offset, Color.Yellow);
-            
+                        
             DrawLine(worldLeft, worldTop, worldRight, worldTop , Color.White);
             DrawLine(worldLeft, worldBottom, worldRight, worldBottom , Color.White);
             DrawLine(worldLeft, 1, worldLeft, h, Color.White);
