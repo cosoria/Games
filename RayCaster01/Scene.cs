@@ -187,11 +187,11 @@ namespace RayCaster01
 
             switch (color)
             {
-                case 1: wallColor = Color.Red; break; //red
+                case 1: wallColor = Color.DarkRed; break; //red
                 case 2: wallColor = Color.Green; break; //green
                 case 3: wallColor = Color.Blue; break; //blue
-                case 4: wallColor= Color.Orange; break; //white
-                default: wallColor = Color.Yellow; break; //yellow
+                case 4: wallColor= Color.DarkOrange; break; //white
+                default: wallColor = Color.DarkOliveGreen; break; //yellow
             }
 
             if (side == 1)

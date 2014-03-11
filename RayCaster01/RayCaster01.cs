@@ -99,9 +99,7 @@ namespace RayCaster01
             // Instantiate a SpriteBatch
             _spriteBatch = ToDisposeContent(new SpriteBatch(GraphicsDevice));
 
-            // Loads the balls texture (32 textures (32x32) stored vertically => 32 x 1024 ).
-            // The [Balls.dds] file is defined with the build action [ToolkitTexture] in the project
-            // ballsTexture = Content.Load<Texture2D>("Balls");
+           
 
             // Loads a sprite font
             // The [Arial16.xml] file is defined with the build action [ToolkitFont] in the project

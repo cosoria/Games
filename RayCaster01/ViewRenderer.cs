@@ -108,8 +108,8 @@ namespace RayCaster01
         private void DrawHorizon()
         {
             var half = Game.ScreenHeight / 2;
-            DrawRectangle(0, 0, Game.ScreenWidth, half, Color.LightGray);
-            DrawRectangle(0, half, Game.ScreenWidth, Game.ScreenHeight, Color.SlateGray);
+            DrawRectangle(0, 0, Game.ScreenWidth, half, Color.SlateGray);
+            DrawRectangle(0, half, Game.ScreenWidth, Game.ScreenHeight, Color.Gray);
         }
 
         private void DrawWalls()
