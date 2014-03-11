@@ -18,8 +18,8 @@ namespace RayCaster01
     public class RayCaster01 : Game, IGame
     {
 
-        public const int SCREEN_WIDTH = 640;
-        public const int SCREEN_HEIGHT = 480;
+        public const int SCREEN_WIDTH = 1024;
+        public const int SCREEN_HEIGHT = 768;
 
         private readonly GraphicsDeviceManager _graphicsDeviceManager;
         

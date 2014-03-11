@@ -12,6 +12,7 @@ namespace RayCaster01
         private float _walkingSpeed;
         private Vector2 _position;
         private Vector2 _direction;
+        private Vector2 _strafeDirection;
 
         public float RotationSpeed
         {
@@ -45,6 +46,10 @@ namespace RayCaster01
             _direction.X = -1;
             _direction.Y = 0;
 
+            // Strafe Direction is perpendicular to direction 
+            _strafeDirection.X = 0;
+            _strafeDirection.Y = 1;
+
             //speed modifiers
             _walkingSpeed = 0.05f; 
             _rotationSpeed = 0.05f; 
@@ -56,9 +61,11 @@ namespace RayCaster01
 
             var pressedKeys = Game.Keyboard.GetPressedKeys();
 
+       
             var stepX = _direction.X * _walkingSpeed;
             var stepY = _direction.Y * _walkingSpeed;
             var step = Vector2.Multiply(_direction, _walkingSpeed);
+            var sizeStep = Vector2.Multiply(_strafeDirection, _walkingSpeed);
 
             // Move Forward 
             if (pressedKeys.Contains(Keys.Up))
@@ -80,12 +87,36 @@ namespace RayCaster01
                     _position.Y -= stepY;
             }
 
+            // Strafe Left 
+            if (pressedKeys.Contains(Keys.Z))
+            {
+                if (Game.Map.GetBlock(_position.X + sizeStep.X, _position.Y) == 0)
+                    _position.X += sizeStep.X;
+
+                if (Game.Map.GetBlock(_position.X, _position.Y + sizeStep.Y) == 0)
+                    _position.Y += sizeStep.Y;
+            }
+
+            // Strafe Right 
+            if (pressedKeys.Contains(Keys.X))
+            {
+                if (Game.Map.GetBlock(_position.X - sizeStep.X, _position.Y) == 0)
+                    _position.X -= sizeStep.X;
+
+                if (Game.Map.GetBlock(_position.X, (_position.Y - sizeStep.Y)) == 0)
+                    _position.Y -= sizeStep.Y;
+            }
+
             // Rotate Left 
             if (pressedKeys.Contains(Keys.Left))
             {
                 var rotated = _direction.Rotate(-_rotationSpeed);
+                var strafeRotated = _strafeDirection.Rotate(-_rotationSpeed);
+
                 _direction.X = rotated.X;
                 _direction.Y = rotated.Y;
+                _strafeDirection.X = strafeRotated.X;
+                _strafeDirection.Y = strafeRotated.Y;
 
                 Game.Scene.RotateCameraPlane(-_rotationSpeed);
             }
@@ -94,16 +125,15 @@ namespace RayCaster01
             if (pressedKeys.Contains(Keys.Right))
             {
                 var rotated = _direction.Rotate(_rotationSpeed);
+                var strafeRotated = _strafeDirection.Rotate(_rotationSpeed);
+
                 _direction.X = rotated.X;
                 _direction.Y = rotated.Y;
+                _strafeDirection.X = strafeRotated.X;
+                _strafeDirection.Y = strafeRotated.Y;
 
                 Game.Scene.RotateCameraPlane(_rotationSpeed);
             }
-
-
-           
-    
-
         }
     }
 }
