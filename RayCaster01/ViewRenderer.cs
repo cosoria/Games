@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Security.Cryptography;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.Direct3D;
@@ -9,6 +10,7 @@ using SharpDX.DXGI;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
 using SharpDX.Toolkit.Input;
+using Texture2D = SharpDX.Toolkit.Graphics.Texture2D;
 
 
 namespace RayCaster01
@@ -27,6 +29,8 @@ namespace RayCaster01
         private RenderTarget _renderTarget;
         private PrimitiveBatch<VertexPositionColor> _primitiveBatch;
         private BasicEffect _basicEffect;
+        private Texture2D[] _wallTextures = new Texture2D[8];
+        private Texture2D[] _objectTexttures = new Texture2D[3];
 
 
         public override void Initialize(IGame game)
@@ -41,6 +45,19 @@ namespace RayCaster01
             _primitiveBatch = new PrimitiveBatch<VertexPositionColor>(game.Device);
             _basicEffect = new BasicEffect(game.Device);
             _basicEffect.VertexColorEnabled = true;
+        }
+
+        public override void LoadContent(IGame game)
+        {
+            base.LoadContent(game);
+
+            _wallTextures[0] = Game.Content.Load<Texture2D>("bluestone");
+            _wallTextures[1] = Game.Content.Load<Texture2D>("greystone");
+            _wallTextures[2] = Game.Content.Load<Texture2D>("colorstone");
+            _wallTextures[3] = Game.Content.Load<Texture2D>("purplestone");
+            _wallTextures[4] = Game.Content.Load<Texture2D>("redbrick");
+            _wallTextures[5] = Game.Content.Load<Texture2D>("wood");
+            _wallTextures[6] = Game.Content.Load<Texture2D>("eagle");
         }
 
         public override void Update(GameTime gameTime)
@@ -97,10 +114,11 @@ namespace RayCaster01
 
             if (_drawWalls)
             {
-                DrawWalls();
+                //DrawWalls();
+                DrawTexturedWall();
             }
 
-            DrawHorizon();
+            
 
             _primitiveBatch.End();
         }
@@ -117,10 +135,56 @@ namespace RayCaster01
             float h = Game.ScreenHeight;
             float w = Game.ScreenWidth;
 
-            foreach (var line in Game.Scene.VerticalLines)
+            foreach (var hit in Game.Scene.VerticalLines)
             {
-                DrawLine(line.Start.X + 1, line.Start.Y,  line.End.X + 1, line.End.Y, line.Color);
+                DrawLine(hit.VerticalLine.Start.X + 1, hit.VerticalLine.Start.Y, hit.VerticalLine.End.X + 1, hit.VerticalLine.End.Y, hit.Color);
             }
+
+            DrawHorizon();
+        }
+
+        private void DrawTexturedWall()
+        {
+
+            // Instantiate a SpriteBatch
+             var spriteBatch = Game.TrackDisposable(new SpriteBatch(Game.Device));
+
+            spriteBatch.Begin();
+
+            foreach (var hit in Game.Scene.VerticalLines)
+            {
+                var color = hit.Side == 0  ? Color.White: Color.DarkGray;
+                var texture = hit.MapTexture - 1;
+                var source = new Rectangle(hit.TextureLine, 0, 1, 64);
+                var destination = new Rectangle((int)hit.VerticalLine.Start.X + 1, (int)hit.VerticalLine.Start.Y,
+                                            1, (int)hit.VerticalLine.End.Y - (int)hit.VerticalLine.Start.Y);
+
+
+                spriteBatch.Draw(_wallTextures[texture], destination, source, color, 0f, Vector2.One, SpriteEffects.None, 0f);
+            }
+
+            
+
+
+            spriteBatch.End();
+
+            //for (int y = drawStart; y < drawEnd; y++)
+            //{
+            //    int d = y * 256 - h * 128 + lineHeight * 128;  //256 and 128 factors to avoid floats
+            //    int texY = ((d * texHeight) / lineHeight) / 256;
+            //    Uint32 color = texture[texNum][texHeight * texY + texX];
+            //    //make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
+            //    if (side == 1) color = (color >> 1) & 8355711;
+            //    buffer[x][y] = color;
+            //} 
+
+
+            //foreach (var hit in Game.Scene.VerticalLines)
+            //{
+            //    DrawLine(hit.VerticalLine.Start.X + 1, hit.VerticalLine.Start.Y, hit.VerticalLine.End.X + 1, hit.VerticalLine.End.Y, hit.Color);
+            //}
+
+            //DrawHorizon();
         }
 
         private void DrawRays()
@@ -185,6 +249,9 @@ namespace RayCaster01
             float centerY = h/2;
             float centerX = w/2;
             float step = h / 24;
+
+            Game.Device.Clear(Color.Black);
+
 
             var center = new Vector2(centerX, centerY);
 

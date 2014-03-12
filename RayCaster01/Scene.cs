@@ -11,10 +11,10 @@ namespace RayCaster01
     public class Scene : GameObject
     {
         private Vector2 _plane;
-        private List<Line> _verticalLines;
+        private List<RayHit> _verticalLines;
         private List<Line> _rays;
 
-        public List<Line> VerticalLines
+        public List<RayHit> VerticalLines
         {
             get { return _verticalLines; }
         }
@@ -38,11 +38,11 @@ namespace RayCaster01
             // _plane.Y = 0.66f;
             _plane.Y = plane.Y;
 
-            _verticalLines = new List<Line>();
+            _verticalLines = new List<RayHit>();
 
             for (var x = 0; x < Game.ScreenWidth; x++)
             {
-                _verticalLines.Add(new Line(x, 1, x, 480));
+                _verticalLines.Add(new RayHit());
             }
 
             _rays = new List<Line>();
@@ -77,26 +77,17 @@ namespace RayCaster01
                 rayDirection.X = Game.Player.Direction.X + _plane.X * cameraX;
                 rayDirection.Y = Game.Player.Direction.Y + _plane.Y * cameraX;
 
-                var hit = CastRay(Game.Player.Position, rayDirection);
+                var hit = CastRay(x, Game.Player.Position, rayDirection);
+            
 
-                //Calculate height of line to draw on screen
-                float lineHeight = h / hit.Distance;
-
-                //calculate lowest and highest pixel to fill in current stripe
-                float drawStart = -lineHeight / 2.0f + h / 2.0f;
-                if (drawStart < 0) drawStart = 0;
-                float drawEnd = lineHeight / 2.0f + h / 2.0f;
-                if (drawEnd >= h) drawEnd = h - 1;
-                
-
-                //draw the pixels of the stripe as a vertical line
-                SetVerticalLine(x, (int)drawStart, (int)drawEnd, hit.Color);
+                _rays[x].Set(Game.Player.Position, hit.Hit, Color.White);
+               
             }
         }
 
-        private RayHit CastRay(Vector2 playerPosition, Vector2 rayDirection)
+        private RayHit CastRay(int rayIndex, Vector2 playerPosition, Vector2 rayDirection)
         {
-            var hit = new RayHit();
+            var hit = _verticalLines[rayIndex];
             
             var rayPosX = (double)playerPosition.X;
             var rayPosY = (double)playerPosition.Y;
@@ -159,43 +150,61 @@ namespace RayCaster01
                     side = 1;
                 }
 
-                var mapBlock = Game.Map.GetBlock(mapX, mapY);
-
                 //Check if ray has hit a wall
-                if (mapBlock > 0)
+                if (Game.Map.GetBlock(mapX, mapY) > 0)
                 {
-                    hit.SetColor(GetWallColor(mapBlock, side));
-                    hit.Side = side;
-                    hit.SetHit(rayPosX, rayPosY);
-
                     wallhit = 1;
                 }
             }
 
-            
+            var mapBlock = Game.Map.GetBlock(mapX, mapY);
+            hit.MapTexture = mapBlock;
+            hit.SetMapCoordinates(mapX, mapY);
+            hit.SetColor(GetWallColor(mapBlock, side));
+            hit.Side = side;
+            hit.SetHit(sideDistX, sideDistY);
+            double wallX;
 
             //Calculate distance projected on camera direction (oblique distance will give fisheye effect!)
             var perpWallDist = 0.0;
             if (side == 0)
             {
                 perpWallDist = (mapX - rayPosX + (1.0 - stepX) / 2.0) / rayDirX;
-                var blockEdgeX = Math.Abs(rayPosX - Math.Floor(rayPosX)) < 0.05;
-                if (blockEdgeX)
-                {
-                    hit.SetColor(Color.White);
-                }
+                
+                wallX = rayPosY + ((mapX - rayPosX + (1 - stepX) / 2.0) / rayDirX) * rayDirY;
+                
             }
             else
             {
                 perpWallDist = (mapY - rayPosY + (1.0 - stepY) / 2.0) / rayDirY;
-                var blockEdgeY = Math.Abs(rayPosY - Math.Floor(rayPosY)) < 0.05;
-                if (blockEdgeY)
-                {
-                    hit.SetColor(Color.White);
-                }
+
+                wallX = rayPosX + ((mapY - rayPosY + (1 - stepY) / 2.0) / rayDirY) * rayDirX;
+                
             }
 
+            hit.TextureLine = (int) ((wallX - Math.Floor(wallX))*64);
+
+            //if (Math.Abs(wallX - Math.Floor(wallX)) < 0.01)
+            //{
+            //    hit.SetColor(Color.White);
+            //}
+
+            wallX = Math.Floor(wallX);
             hit.Distance = (float)Math.Abs(perpWallDist);
+
+            float w = Game.ScreenWidth;
+            float h = Game.ScreenHeight;
+
+            //Calculate height of line to draw on screen
+            float lineHeight = h / hit.Distance;
+
+            //calculate lowest and highest pixel to fill in current stripe
+            float drawStart = -lineHeight / 2.0f + h / 2.0f;
+            if (drawStart < 0) drawStart = 0;
+            float drawEnd = lineHeight / 2.0f + h / 2.0f;
+            if (drawEnd >= h) drawEnd = h - 1;
+
+            hit.VerticalLine.Set(rayIndex, drawStart, rayIndex, drawEnd, hit.Color);
             
             return hit;
         }
@@ -223,10 +232,6 @@ namespace RayCaster01
             return wallColor;
         }
 
-        private void SetVerticalLine(int x, int start, int end, Color color)
-        {
-            _verticalLines[x].Set(x, start, x, end, color);
-        }
         
         public void RotateCameraPlane(float rotationAngle)
         {
@@ -234,37 +239,6 @@ namespace RayCaster01
             
             _plane.X = rotated.X;
             _plane.Y = rotated.Y;
-        }
-    }
-
-    public class RayHit
-    {
-        private Vector2 _hit;
-        private Color _color;
-
-        public float Distance { get; set; }
-
-        public Vector2 Hit { get { return _hit; }}
-        public Color Color { get { return _color; }}
-        public int Side { get; set; }
-
-        public RayHit()
-        {
-            Distance = 0.0f;
-            _hit = new Vector2();
-            _color = Color.White;
-            Side = 0;
-        }
-
-        public void SetHit(double x, double y)
-        {
-            _hit.X = (float)x;
-            _hit.Y = (float)y;
-        }
-
-        public void SetColor(Color color)
-        {
-            _color = color;
         }
     }
 }

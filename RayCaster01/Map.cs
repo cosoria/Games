@@ -38,8 +38,7 @@ namespace RayCaster01
            new []  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
         };
 
-        private Texture2D[] _wallTextures = new Texture2D[8];
-        private Texture2D[] _objectTexttures = new Texture2D[3];
+  
 
         public int[][] World
         {
