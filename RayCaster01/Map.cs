@@ -66,6 +66,7 @@ namespace RayCaster01
             base.LoadContent(game);
 
             var blueStone = Game.Content.Load<Texture2D>("bluestone");
+            var greyStone = Game.Content.Load<Texture2D>("greystone");
 
         }
     }

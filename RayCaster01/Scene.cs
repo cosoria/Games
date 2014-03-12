@@ -28,8 +28,15 @@ namespace RayCaster01
         {
             base.Initialize(game);
 
-            _plane.X = 0.0f;
-            _plane.Y = 0.66f;
+            // Rotate player direction 90 degrees to obtain the camera plane 
+            var rotated = Game.Player.Direction.Rotate((float) Math.PI/2);
+            // Will not multiply that by .66 to obtain the right FOV 
+            var plane = Vector2.Multiply(rotated, 0.66f);
+
+            // _plane.X = 0.0f;
+            _plane.X = plane.X;
+            // _plane.Y = 0.66f;
+            _plane.Y = plane.Y;
 
             _verticalLines = new List<Line>();
 
@@ -165,15 +172,27 @@ namespace RayCaster01
                 }
             }
 
+            
+
             //Calculate distance projected on camera direction (oblique distance will give fisheye effect!)
             var perpWallDist = 0.0;
             if (side == 0)
             {
                 perpWallDist = (mapX - rayPosX + (1.0 - stepX) / 2.0) / rayDirX;
+                var blockEdgeX = Math.Abs(rayPosX - Math.Floor(rayPosX)) < 0.05;
+                if (blockEdgeX)
+                {
+                    hit.SetColor(Color.White);
+                }
             }
             else
             {
                 perpWallDist = (mapY - rayPosY + (1.0 - stepY) / 2.0) / rayDirY;
+                var blockEdgeY = Math.Abs(rayPosY - Math.Floor(rayPosY)) < 0.05;
+                if (blockEdgeY)
+                {
+                    hit.SetColor(Color.White);
+                }
             }
 
             hit.Distance = (float)Math.Abs(perpWallDist);

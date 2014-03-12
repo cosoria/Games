@@ -40,11 +40,11 @@ namespace RayCaster01
 
             // Initial Player Position 
             _position.X = 6.50f;
-            _position.Y = 16.50f;
+            _position.Y = 12.50f;
 
             // Initial Player Direction 
-            _direction.X = -1;
-            _direction.Y = 0;
+            _direction.X = 0f;
+            _direction.Y = 1f;
 
             // Strafe Direction is perpendicular to direction 
             _strafeDirection.X = 0;

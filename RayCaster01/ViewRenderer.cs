@@ -119,7 +119,7 @@ namespace RayCaster01
 
             foreach (var line in Game.Scene.VerticalLines)
             {
-                DrawLine( w - line.Start.X + 1, line.Start.Y,  w - line.End.X + 1, line.End.Y, line.Color);
+                DrawLine(line.Start.X + 1, line.Start.Y,  line.End.X + 1, line.End.Y, line.Color);
             }
         }
 
