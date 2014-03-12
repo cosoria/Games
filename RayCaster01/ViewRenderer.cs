@@ -311,7 +311,7 @@ namespace RayCaster01
         private void DrawTexture(int texture, Rectangle screenRect, Rectangle textureRect, int side)
         {
             var color = side == 0 ? Color.White : Color.DarkGray;
-            _spriteBatch.Draw(_wallTextures[texture - 1], screenRect, textureRect, color, 0f, Vector2.One, SpriteEffects.None, 0f);
+            _spriteBatch.Draw(_wallTextures[texture], screenRect, textureRect, color, 0f, Vector2.One, SpriteEffects.None, 0f);
         }
     }
 }

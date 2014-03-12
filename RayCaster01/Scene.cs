@@ -150,17 +150,17 @@ namespace RayCaster01
                     side = 1;
                 }
 
+                var mapBlock = Game.Map.GetBlock(mapX, mapY);
                 //Check if ray has hit a wall
-                if (Game.Map.GetBlock(mapX, mapY) > 0)
+                if (mapBlock > 0)
                 {
+                    hit.MapTexture = mapBlock;
                     wallhit = 1;
                 }
             }
 
-            var mapBlock = Game.Map.GetBlock(mapX, mapY);
-            hit.MapTexture = mapBlock;
             hit.SetMapCoordinates(mapX, mapY);
-            hit.SetColor(GetWallColor(mapBlock, side));
+            hit.SetColor(GetWallColor(hit.MapTexture, side));
             hit.Side = side;
             hit.SetHit(sideDistX, sideDistY);
             double wallX;
