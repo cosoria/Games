@@ -67,23 +67,26 @@ namespace RayCaster01
             var step = Vector2.Multiply(_direction, _walkingSpeed);
             var sizeStep = Vector2.Multiply(_strafeDirection, _walkingSpeed);
 
+            var wallBoundX = stepX > 0 ? 0.2f : -0.2f;
+            var wallBoundY = stepY > 0 ? 0.2f : -0.2f;
+
             // Move Forward 
             if (pressedKeys.Contains(Keys.Up))
             {
-                if (Game.Map.GetBlock(_position.X + stepX, _position.Y) == 0)
+                if (Game.Map.GetBlock(_position.X + (stepX + wallBoundX), _position.Y) == 0)
                     _position.X += stepX;
 
-                if (Game.Map.GetBlock(_position.X, _position.Y + stepY) == 0)
+                if (Game.Map.GetBlock(_position.X, _position.Y + (stepY + wallBoundY)) == 0)
                     _position.Y += stepY;
             }
 
             // Move Backwards 
             if (pressedKeys.Contains(Keys.Down))
             {
-                if (Game.Map.GetBlock(_position.X - stepX, _position.Y) == 0)
+                if (Game.Map.GetBlock(_position.X - (stepX + wallBoundX), _position.Y) == 0)
                     _position.X -= stepX;
 
-                if (Game.Map.GetBlock(_position.X, (_position.Y - stepY)) == 0)
+                if (Game.Map.GetBlock(_position.X, (_position.Y - (stepY + wallBoundY))) == 0)
                     _position.Y -= stepY;
             }
 

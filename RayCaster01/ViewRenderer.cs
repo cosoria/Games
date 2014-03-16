@@ -31,6 +31,9 @@ namespace RayCaster01
         private BasicEffect _basicEffect;
         private Texture2D[] _wallTextures = new Texture2D[8];
         private Texture2D[] _objectTexttures = new Texture2D[3];
+        private TimeSpan _lastTimeF10Pressed;
+        private TimeSpan _lastTimeF11Pressed;
+        private TimeSpan _lastTimeF12Pressed;
 
 
         public override void Initialize(IGame game)
@@ -52,7 +55,7 @@ namespace RayCaster01
         {
             base.LoadContent(game);
 
-            _wallTextures[4] = Game.TrackDisposable(Game.Content.Load<Texture2D>("bluestone"));
+            _wallTextures[4] = Game.TrackDisposable(Game.Content.Load<Texture2D>("greenlight"));
             _wallTextures[5] = Game.TrackDisposable(Game.Content.Load<Texture2D>("greystone"));
             _wallTextures[6] = Game.TrackDisposable(Game.Content.Load<Texture2D>("colorstone"));
             _wallTextures[3] = Game.TrackDisposable(Game.Content.Load<Texture2D>("purplestone"));
@@ -67,24 +70,23 @@ namespace RayCaster01
 
             var keys = Game.Keyboard.GetPressedKeys();
 
-           
-            _checkF10 = Game.Keyboard.IsKeyDown(Keys.F10);
-            _checkF11 = Game.Keyboard.IsKeyDown(Keys.F11);
-            _checkF12 = Game.Keyboard.IsKeyDown(Keys.F12);
-
-            if (keys.Contains(Keys.F10))
+            
+            if (keys.Contains(Keys.F10) && (gameTime.TotalGameTime - _lastTimeF10Pressed).Milliseconds > 500)
             {
                 _drawMap = !_drawMap;
+                _lastTimeF10Pressed = gameTime.TotalGameTime;
             }
 
-            if (keys.Contains(Keys.F11))
+            if (keys.Contains(Keys.F11) && (gameTime.TotalGameTime - _lastTimeF11Pressed).Milliseconds > 500)
             {
                 _drawRays = !_drawRays;
+                _lastTimeF11Pressed = gameTime.TotalGameTime;
             }
 
-            if (keys.Contains(Keys.F12))
+            if (keys.Contains(Keys.F12) && (gameTime.TotalGameTime - _lastTimeF12Pressed).Milliseconds > 500)
             {
                 _drawWalls = !_drawWalls;
+                _lastTimeF12Pressed = gameTime.TotalGameTime;
             }
         }
 
@@ -111,13 +113,17 @@ namespace RayCaster01
                 DrawRays();
             }
 
-            if (_drawWalls)
+            if (!_drawMap)
             {
-                DrawTexturedWall();
-            }
-            else
-            {
-                DrawWalls();
+
+                if (_drawWalls)
+                {
+                    DrawTexturedWall();
+                }
+                else
+                {
+                    DrawSolidWalls();
+                }
             }
 
             _spriteBatch.End();
@@ -131,7 +137,7 @@ namespace RayCaster01
             DrawRectangle(0, half, Game.ScreenWidth, Game.ScreenHeight, Color.Gray);
         }
 
-        private void DrawWalls()
+        private void DrawSolidWalls()
         {
             foreach (var hit in Game.Scene.VerticalLines)
             {
@@ -205,7 +211,6 @@ namespace RayCaster01
             var offset = new Vector2(player.X + (Game.Player.Direction.X * 10), player.Y + (Game.Player.Direction.Y * 10));
             DrawLine(player, offset, Color.Yellow);
         }
-
 
         private void DrawWallStrip(RayHit hit)
         {

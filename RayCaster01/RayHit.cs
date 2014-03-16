@@ -18,6 +18,7 @@ namespace RayCaster01
         public Vector2 Hit { get { return _hit; } }
         public Color Color { get { return _color; } }
         public Line VerticalLine { get { return _line; }}
+        //public Line Texture
 
         public RayHit()
         {

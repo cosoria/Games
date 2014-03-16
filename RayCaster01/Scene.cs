@@ -200,9 +200,9 @@ namespace RayCaster01
 
             //calculate lowest and highest pixel to fill in current stripe
             float drawStart = -lineHeight / 2.0f + h / 2.0f;
-            if (drawStart < 0) drawStart = 0;
+            //if (drawStart < 0) drawStart = 0;
             float drawEnd = lineHeight / 2.0f + h / 2.0f;
-            if (drawEnd >= h) drawEnd = h - 1;
+            //if (drawEnd >= h) drawEnd = h - 1;
 
             hit.VerticalLine.Set(rayIndex, drawStart, rayIndex, drawEnd, hit.Color);
             
