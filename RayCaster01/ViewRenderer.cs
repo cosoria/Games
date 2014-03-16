@@ -55,13 +55,19 @@ namespace RayCaster01
         {
             base.LoadContent(game);
 
-            _wallTextures[4] = Game.TrackDisposable(Game.Content.Load<Texture2D>("greenlight"));
-            _wallTextures[5] = Game.TrackDisposable(Game.Content.Load<Texture2D>("greystone"));
-            _wallTextures[6] = Game.TrackDisposable(Game.Content.Load<Texture2D>("colorstone"));
-            _wallTextures[3] = Game.TrackDisposable(Game.Content.Load<Texture2D>("purplestone"));
-            _wallTextures[0] = Game.TrackDisposable(Game.Content.Load<Texture2D>("redbrick"));
-            _wallTextures[2] = Game.TrackDisposable(Game.Content.Load<Texture2D>("wood"));
-            _wallTextures[1] = Game.TrackDisposable(Game.Content.Load<Texture2D>("eagle"));
+            _wallTextures[0] = Game.TrackDisposable(Game.Content.Load<Texture2D>("greystone"));
+            _wallTextures[1] = Game.TrackDisposable(Game.Content.Load<Texture2D>("mossy"));
+            _wallTextures[2] = Game.TrackDisposable(Game.Content.Load<Texture2D>("colorstone"));
+            _wallTextures[3] = Game.TrackDisposable(Game.Content.Load<Texture2D>("bluestone"));
+            _wallTextures[4] = Game.TrackDisposable(Game.Content.Load<Texture2D>("redbrick"));
+            _wallTextures[5] = Game.TrackDisposable(Game.Content.Load<Texture2D>("eagle"));
+            _wallTextures[6] = Game.TrackDisposable(Game.Content.Load<Texture2D>("purplestone"));
+            _wallTextures[7] = Game.TrackDisposable(Game.Content.Load<Texture2D>("wood"));
+
+            _objectTexttures[0] = Game.TrackDisposable(Game.Content.Load<Texture2D>("barrel"));
+            _objectTexttures[1] = Game.TrackDisposable(Game.Content.Load<Texture2D>("pillar"));
+            _objectTexttures[2] = Game.TrackDisposable(Game.Content.Load<Texture2D>("greenlight"));
+
         }
 
         public override void Update(GameTime gameTime)
