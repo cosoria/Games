@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Security.Cryptography;
+using RayCaster01.Framework;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.Direct3D;
@@ -29,47 +30,46 @@ namespace RayCaster01
         private RenderTarget _renderTarget;
         private PrimitiveBatch<VertexPositionColor> _primitiveBatch;
         private BasicEffect _basicEffect;
-        private Texture2D[] _wallTextures = new Texture2D[8];
-        private Texture2D[] _objectTexttures = new Texture2D[3];
+        private Texture2D[] _wallTextures64x64 = new Texture2D[10];
+        private Texture2D[] _wallTextures128x128 = new Texture2D[10];
+        private Texture2D[] _objectTexttures64x64 = new Texture2D[3];
+        private Texture2D[] _skyTextures = new Texture2D[2];
         private TimeSpan _lastTimeF10Pressed;
         private TimeSpan _lastTimeF11Pressed;
         private TimeSpan _lastTimeF12Pressed;
-
+        private int _textureWidth;
+        private int _textureHeight;
+        private ContentLoader _contentLoader;
 
         public override void Initialize(IGame game)
         {
             base.Initialize(game);
             _width = game.ScreenWidth;
             _height = game.ScreenHeight;
+            _textureWidth = game.TextureWidth;
+            _textureHeight = game.TextureHeight;
             
-            // spriteBatch = ToDisposeContent(new SpriteBatch(GraphicsDevice));
-            // _sprite = Game.TrackDisposable(new SpriteBatch(game.Device));
-            // _renderTarget = RenderTarget2D.New(game.Device, game.Device.Viewport.Width, game.Device.BackBuffer.Height, PixelFormat.R32G32B32A32.Float);
             _primitiveBatch = Game.TrackDisposable(new PrimitiveBatch<VertexPositionColor>(game.Device));
             _spriteBatch = Game.TrackDisposable(new SpriteBatch(Game.Device));
             _basicEffect = new BasicEffect(game.Device);
             _basicEffect.VertexColorEnabled = true;
+
+            _contentLoader = new ContentLoader(game);
+            // _renderTarget = RenderTarget2D.New(game.Device, game.Device.Viewport.Width, game.Device.BackBuffer.Height, PixelFormat.R32G32B32A32.Float);
         }
 
         public override void LoadContent(IGame game)
         {
             base.LoadContent(game);
 
-            _wallTextures[0] = Game.TrackDisposable(Game.Content.Load<Texture2D>("greystone"));
-            _wallTextures[1] = Game.TrackDisposable(Game.Content.Load<Texture2D>("mossy"));
-            _wallTextures[2] = Game.TrackDisposable(Game.Content.Load<Texture2D>("colorstone"));
-            _wallTextures[3] = Game.TrackDisposable(Game.Content.Load<Texture2D>("bluestone"));
-            _wallTextures[4] = Game.TrackDisposable(Game.Content.Load<Texture2D>("redbrick"));
-            _wallTextures[5] = Game.TrackDisposable(Game.Content.Load<Texture2D>("eagle"));
-            _wallTextures[6] = Game.TrackDisposable(Game.Content.Load<Texture2D>("purplestone"));
-            _wallTextures[7] = Game.TrackDisposable(Game.Content.Load<Texture2D>("wood"));
+            _contentLoader.Load64x64WallTextures(_wallTextures64x64);
+            _contentLoader.Load64x64ObjectTextures(_objectTexttures64x64);
 
-            _objectTexttures[0] = Game.TrackDisposable(Game.Content.Load<Texture2D>("barrel"));
-            _objectTexttures[1] = Game.TrackDisposable(Game.Content.Load<Texture2D>("pillar"));
-            _objectTexttures[2] = Game.TrackDisposable(Game.Content.Load<Texture2D>("greenlight"));
+            _contentLoader.Load128x128WallTextures(_wallTextures128x128);
 
+            _contentLoader.LoadSkyTextures(_skyTextures);
         }
-
+        
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
@@ -99,19 +99,18 @@ namespace RayCaster01
         public override void Draw(GameTime gameTime)
         {
             base.Draw(gameTime);
-            
+
             _basicEffect.Projection = Matrix.OrthoOffCenterRH(0, Game.Device.Viewport.Width, Game.Device.Viewport.Height, 0, 0, 1);
             _basicEffect.Alpha = 1.0f;
             _basicEffect.VertexColorEnabled = true;
             _basicEffect.CurrentTechnique.Passes[0].Apply();
-            
+
             _primitiveBatch.Begin();
-            _spriteBatch.Begin();
 
             if (_drawMap)
             {
                 DrawPlayer();
-                DrawMap();
+                DrawMapGridLines();
             }
 
             if (_drawRays)
@@ -119,28 +118,64 @@ namespace RayCaster01
                 DrawRays();
             }
 
-            if (!_drawMap)
+            if (!_drawMap && !_drawWalls)
             {
-
-                if (_drawWalls)
-                {
-                    DrawTexturedWall();
-                }
-                else
-                {
-                    DrawSolidWalls();
-                }
+                DrawSolidWalls();
             }
 
-            _spriteBatch.End();
+            if (!_drawMap)
+            {
+                DrawHorizon();
+            }
+            
+
             _primitiveBatch.End();
+
+            _spriteBatch.Begin();
+
+            if (!_drawMap)
+            {
+                DrawSky();
+            }
+
+            if (_drawMap)
+            {
+                DrawMapWallTextures();
+            }
+
+            if (!_drawMap && _drawWalls)
+            {
+                DrawTexturedWall();
+                
+            }
+
+           
+
+            _spriteBatch.End();
+          
+        }
+
+        private void DrawSky()
+        {
+            var skyTexture = _skyTextures[0];
+
+            var dir = Game.Player.Direction;
+            var angle = Math.Atan2(dir.Y, dir.X).ToDegrees();
+            angle = angle < 0 ? 360 - Math.Abs(angle) : angle;
+
+            var textX = (int) ((angle*(skyTexture.Width - _width))/360.0);
+            var screenRect = new Rectangle(0, 0, _width, _height / 2);
+            var textureRect = new Rectangle(textX, 100, _width, _height);
+            var color = Color.DarkGray;
+
+            _spriteBatch.Draw(skyTexture, screenRect, textureRect, color, 0f, Vector2.One, SpriteEffects.None, 0f);
         }
 
         private void DrawHorizon()
         {
-            var half = Game.ScreenHeight / 2;
-            DrawRectangle(0, 0, Game.ScreenWidth, half, Color.SlateGray);
-            DrawRectangle(0, half, Game.ScreenWidth, Game.ScreenHeight, Color.Gray);
+            var half = _height / 2;
+            DrawRectangle(0, 0, _width, half, Color.SlateGray);
+            DrawRectangle(0, half, _width, _height, Color.Gray);
         }
 
         private void DrawSolidWalls()
@@ -149,8 +184,6 @@ namespace RayCaster01
             {
                 DrawWallStrip(hit);
             }
-
-            DrawHorizon();
         }
 
         private void DrawTexturedWall()
@@ -158,16 +191,43 @@ namespace RayCaster01
             foreach (var hit in Game.Scene.VerticalLines)
             {
                 DrawTexturedWallStrip(hit);
+                // DrawFloor(hit);
             }
+        }
 
-            DrawHorizon();
+        private void DrawFloor(RayHit hit)
+        {
+            double h = Game.ScreenHeight;
+            double distWall = hit.Distance;
+            double distPlayer = 0.0;
+            double currentDist = 0.0;
+            double floorXWall = hit.Hit.X;
+            double floorYWall = hit.Hit.Y;
+            double posX = Game.Player.Position.X;
+            double posY = Game.Player.Position.Y;
+            int floorTexX, floorTexY;
+      
+            for (var y = hit.VerticalLine.End.Y + 1; y < h; y++)
+            {
+                currentDist = h / (2.0 * y - h);
+                var weight = (currentDist - hit.Distance) / (distWall - distPlayer);
+
+                double currentFloorX = weight * floorXWall + (1.0 - weight) * posX;
+                double currentFloorY = weight * floorYWall + (1.0 - weight) * posY;
+          
+                floorTexX = (int)((currentFloorX * _textureWidth) % _textureWidth);
+                floorTexY = (int)((currentFloorY * _textureHeight) % _textureHeight);
+
+                DrawTextel(0, hit.VerticalLine.End.X, y, floorTexX, floorTexY);
+            }
+           
         }
 
         private void DrawRays()
         {
             // Draw Player Position 
-            float h = Game.ScreenHeight;
-            float w = Game.ScreenWidth;
+            float h = _height;
+            float w = _width;
             float centerY = h/2;
             float centerX = w/2;
             float step = h / 24;
@@ -198,6 +258,58 @@ namespace RayCaster01
             }
         }
 
+        private void DrawMapWallTextures()
+        {
+            float h = _height;
+            float w = _width;
+            float mapWidth = this.Game.Map.MapWidth;
+            float mapHeight = this.Game.Map.MapHeight;
+            float centerY = h / 2;
+            float centerX = w / 2;
+            float stepX = w / mapWidth;
+            float stepY = h / mapWidth;
+            
+            var center = new Vector2(centerX, centerY);
+
+            // Draw World Bounds
+            float worldLeft = centerX - centerY;
+            float worldTop = 1;
+            float worldRight = centerX + centerY;
+            float worldBottom = h;
+
+            float startX = worldLeft;
+            float startY = worldTop;
+
+
+            // Draw Map Walls 
+            startX = worldLeft;
+            startY = worldTop;
+            for (int y = 0; y < mapHeight; y++)
+            {
+                startX = worldLeft;
+                for (int x = 0; x < mapWidth; x++)
+                {
+                    if (Game.Map.GetBlock(x, y) > 0)
+                    {
+                        var color = Game.Map.GetBlock(x, y);
+                        var texture = color - 1;
+
+                        var screen = new Rectangle((int)startX, (int)startY, (int)stepX, (int)stepY);
+                        var textureRect = new Rectangle(0, 0, 64, 64);
+                        DrawTexture(texture, screen, textureRect, 0);
+                        //DrawLine(startX, startY, startX + step, startY + step, color);
+                        //DrawLine(startX + step, startY, startX, startY + step, color);
+                    }
+                    startX += stepX;
+                }
+                startY += stepY;
+
+                //DrawLine(worldLeft, startY, worldRight, startY, Color.Gray);
+                //DrawLine(startX, worldTop, startX, worldBottom, Color.Gray);
+            }
+
+        }
+
         private void DrawPlayer()
         {
             float h = Game.ScreenHeight;
@@ -226,22 +338,22 @@ namespace RayCaster01
         private void DrawTexturedWallStrip(RayHit hit)
         {
             var texture = hit.MapTexture - 1;
-            var source = new Rectangle(hit.TextureLine, 0, 1, 64);
+            var source = new Rectangle(hit.TextureLine, 0, 1, _textureHeight);
             var destination = new Rectangle((int)hit.VerticalLine.Start.X + 1, (int)hit.VerticalLine.Start.Y,
                                         1, (int)hit.VerticalLine.End.Y - (int)hit.VerticalLine.Start.Y);
 
             DrawTexture(texture, destination, source, hit.Side);
         }
 
-        private void DrawMap()
+        private void DrawMapGridLines()
         {
             float h = Game.ScreenHeight;
             float w = Game.ScreenWidth;
+            float mapWidth = this.Game.Map.MapWidth;
+            float mapHeight = this.Game.Map.MapHeight;
             float centerY = h/2;
             float centerX = w/2;
-            float step = h / 24;
-
-            Game.Device.Clear(Color.Black);
+            float step = h / mapWidth;
 
 
             var center = new Vector2(centerX, centerY);
@@ -262,7 +374,7 @@ namespace RayCaster01
             
             float startX = worldLeft;
             float startY = worldTop;
-            for (int i = 0; i < 24; i++)
+            for (int i = 0; i < mapWidth; i++)
             {
                 startX += step;
                 startY += step;
@@ -270,29 +382,7 @@ namespace RayCaster01
                 DrawLine(startX, worldTop, startX, worldBottom, Color.Gray);
             }
 
-            // Draw Map Walls 
-            startX = worldLeft;
-            startY = worldTop;
-            for (int y = 0; y < 24; y++)
-            {
-                startX = worldLeft;
-                for (int x = 0; x < 24; x++)
-                {
-                    if (Game.Map.GetBlock(x, y) > 0)
-                    {
-                        var color = Game.Scene.GetWallColor(Game.Map.GetBlock(x, y));
-
-                        DrawLine(startX, startY, startX + step, startY + step, color);
-                        DrawLine(startX + step, startY, startX, startY + step, color);
-                    }
-                    startX += step;
-                }
-                startY += step;  
-                
-                DrawLine(worldLeft, startY, worldRight, startY, Color.Gray);
-                DrawLine(startX, worldTop, startX, worldBottom, Color.Gray);
-            }
-
+            
             
         }
 
@@ -318,11 +408,32 @@ namespace RayCaster01
 
             _primitiveBatch.DrawQuad(vpc1, vpc2, vpc3, vpc4);
         }
-        
-        private void DrawTexture(int texture, Rectangle screenRect, Rectangle textureRect, int side)
+
+        private void DrawTexture(int textureIndex, Rectangle screenRect, Rectangle textureRect, int side)
         {
             var color = side == 0 ? Color.White : Color.DarkGray;
-            _spriteBatch.Draw(_wallTextures[texture], screenRect, textureRect, color, 0f, Vector2.One, SpriteEffects.None, 0f);
+            var texture = GetTexture(textureIndex);
+            _spriteBatch.Draw(texture, screenRect, textureRect, color, 0f, Vector2.One, SpriteEffects.None, 0f);
+        }
+
+        private void DrawTextel(int textureIndex, float screenX, float screenY, float textureX, float textureY)
+        {
+            var screenRect = new Rectangle((int)screenX, (int)screenY, 1, 1);
+            var textureRect = new Rectangle((int)textureX, (int)textureY, 1, 1);
+            var color = Color.White;
+            var texture = GetTexture(textureIndex);
+            _spriteBatch.Draw(texture, screenRect, textureRect, color, 0f, Vector2.One, SpriteEffects.None, 0f);
+        }
+
+        private Texture2D GetTexture(int index)
+        {
+            if (Game.TextureWidth == 128)
+            {
+                return _wallTextures128x128[index];
+            }
+
+            
+            return _wallTextures64x64[index];
         }
     }
 }

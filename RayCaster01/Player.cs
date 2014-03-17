@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using RayCaster01.Framework;
 using SharpDX;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Input;
@@ -46,9 +47,11 @@ namespace RayCaster01
             _direction.X = 0f;
             _direction.Y = 1f;
 
+            
             // Strafe Direction is perpendicular to direction 
-            _strafeDirection.X = 0;
-            _strafeDirection.Y = 1;
+            var rotated = _direction.Rotate(-(float)Math.PI / 2);
+            _strafeDirection.X = rotated.X;
+            _strafeDirection.Y = rotated.Y;
 
             //speed modifiers
             _walkingSpeed = 0.05f; 

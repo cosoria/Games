@@ -1,3 +1,4 @@
+using RayCaster01.Framework;
 using SharpDX;
 
 namespace RayCaster01

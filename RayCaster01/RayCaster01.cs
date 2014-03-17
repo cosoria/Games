@@ -1,5 +1,5 @@
-﻿// ReSharper disable InconsistentNaming
-
+﻿using RayCaster01.Framework;
+// ReSharper disable InconsistentNaming
 using System;
 using SharpDX;
 
@@ -20,6 +20,8 @@ namespace RayCaster01
 
         public const int SCREEN_WIDTH = 1024;
         public const int SCREEN_HEIGHT = 768;
+        public const int TEXTURE_WIDTH = 128;
+        public const int TEXTURE_HEIGHT = 128;
 
         private readonly GraphicsDeviceManager _graphicsDeviceManager;
         
@@ -36,6 +38,8 @@ namespace RayCaster01
 
         public int ScreenWidth { get { return SCREEN_WIDTH; } }
         public int ScreenHeight { get { return SCREEN_HEIGHT; } }
+        public int TextureWidth { get { return TEXTURE_WIDTH; } }
+        public int TextureHeight { get { return TEXTURE_HEIGHT; } }
         public MouseState Mouse { get { return _mouseState; } }
         public KeyboardState Keyboard { get { return _keyboardState; } }
         public GraphicsDeviceManager DeviceManager { get { return _graphicsDeviceManager; } }
@@ -52,7 +56,6 @@ namespace RayCaster01
         }
         
         private SpriteBatch _spriteBatch;
-        private Texture2D ballsTexture;
         private SpriteFont _arial16Font;
 
         
@@ -152,10 +155,14 @@ namespace RayCaster01
             _spriteBatch.Begin();
             var text = new StringBuilder();
 
+            var angle = Math.Atan2(_player.Direction.Y, _player.Direction.X).ToDegrees();
+            angle = angle < 0 ? 360 - Math.Abs(angle) : angle;
+
             text.AppendFormat("Position [{0},{1}]", _player.Position.X, _player.Position.Y);
             text.AppendLine();
             text.AppendFormat("Direction [{0},{1}]", _player.Direction.X, _player.Direction.Y);
-            
+            text.AppendLine();
+            text.AppendFormat("Angle [{0}]", angle);
             _spriteBatch.DrawString(_arial16Font, text.ToString(), new Vector2(16, 16), Color.White);
             _spriteBatch.End();
             

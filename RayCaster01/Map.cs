@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Security.Policy;
+using RayCaster01.Framework;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
 
@@ -7,8 +8,8 @@ namespace RayCaster01
 {
     public class Map : GameObject 
     {
-        public const int MapWidth = 24;
-        public const int MapHeight = 24;
+        private const int MAP_WIDTH = 24;
+        private const int MAP_HEIGHT = 24;
 
         private int[][] _map =
         {
@@ -38,7 +39,10 @@ namespace RayCaster01
            new []  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
         };
 
-  
+
+        public int MapWidth { get { return MAP_WIDTH; } }
+        public int MapHeight { get { return MAP_HEIGHT; } }
+
 
         public int[][] World
         {

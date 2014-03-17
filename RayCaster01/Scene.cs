@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Security.Principal;
+using RayCaster01.Framework;
 using SharpDX;
 using SharpDX.Toolkit;
 
@@ -13,6 +14,7 @@ namespace RayCaster01
         private Vector2 _plane;
         private List<RayHit> _verticalLines;
         private List<Line> _rays;
+        private int _wallHeight;
 
         public List<RayHit> VerticalLines
         {
@@ -27,6 +29,8 @@ namespace RayCaster01
         public override void Initialize(IGame game)
         {
             base.Initialize(game);
+
+            _wallHeight = game.TextureHeight;
 
             // Rotate player direction 90 degrees to obtain the camera plane 
             var rotated = Game.Player.Direction.Rotate((float) Math.PI/2);
@@ -182,7 +186,7 @@ namespace RayCaster01
                 
             }
 
-            hit.TextureLine = (int) ((wallX - Math.Floor(wallX))*64);
+            hit.TextureLine = (int) ((wallX - Math.Floor(wallX)) * _wallHeight);
 
             //if (Math.Abs(wallX - Math.Floor(wallX)) < 0.01)
             //{

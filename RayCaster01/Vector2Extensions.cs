@@ -25,5 +25,15 @@ namespace SharpDX
         {
             return Vector2.Subtract(vector, otherVector);
         }
+
+        public static double ToDegrees(this double radians)
+        {
+            return (360 * radians) / (2.0 * Math.PI);
+        }
+
+        public static double ToRadians(this double degrees)
+        {
+            return (degrees * (2.0 * Math.PI)) / 360.0;
+        }
     }
 }
