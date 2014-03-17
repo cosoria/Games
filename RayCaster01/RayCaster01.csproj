@@ -86,7 +86,7 @@
     <ToolkitTexture Include="Content\64x64\wood.png" />
   </ItemGroup>
   <ItemGroup>
-    <ToolkitTexture Include="Content\sky.jpg" />
+    <ToolkitTexture Include="Content\skycontinuos.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SharpDXSdkDir)\SharpDX.targets" />

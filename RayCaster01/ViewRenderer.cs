@@ -163,9 +163,9 @@ namespace RayCaster01
             var angle = Math.Atan2(dir.Y, dir.X).ToDegrees();
             angle = angle < 0 ? 360 - Math.Abs(angle) : angle;
 
-            var textX = (int) ((angle*(skyTexture.Width - _width))/360.0);
+            var textX = (int) ((angle * (skyTexture.Width / 2.0))/360.0);
             var screenRect = new Rectangle(0, 0, _width, _height / 2);
-            var textureRect = new Rectangle(textX, 100, _width, _height);
+            var textureRect = new Rectangle(textX, 0, _width, (_height / 2) - 100);
             var color = Color.DarkGray;
 
             _spriteBatch.Draw(skyTexture, screenRect, textureRect, color, 0f, Vector2.One, SpriteEffects.None, 0f);

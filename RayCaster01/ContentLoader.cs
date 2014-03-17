@@ -47,7 +47,7 @@ namespace RayCaster01
 
         public void LoadSkyTextures(Texture2D[] textureArray)
         {
-            textureArray[0] = _game.TrackDisposable(_game.Content.Load<Texture2D>("sky"));
+            textureArray[0] = _game.TrackDisposable(_game.Content.Load<Texture2D>("skycontinuos"));
         }
     }
 }
