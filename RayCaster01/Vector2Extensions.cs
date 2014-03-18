@@ -26,6 +26,11 @@ namespace SharpDX
             return Vector2.Subtract(vector, otherVector);
         }
 
+        public static Vector2 Multiply(this Vector2 vector, float factor)
+        {
+            return Vector2.Multiply(vector, factor);
+        }
+
         public static double ToDegrees(this double radians)
         {
             return (360 * radians) / (2.0 * Math.PI);

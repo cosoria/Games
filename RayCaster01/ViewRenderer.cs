@@ -148,9 +148,7 @@ namespace RayCaster01
                 DrawTexturedWall();
                 
             }
-
-           
-
+            
             _spriteBatch.End();
           
         }
@@ -260,25 +258,19 @@ namespace RayCaster01
 
         private void DrawMapWallTextures()
         {
-            float h = _height;
-            float w = _width;
-            float mapWidth = this.Game.Map.MapWidth;
-            float mapHeight = this.Game.Map.MapHeight;
-            float centerY = h / 2;
-            float centerX = w / 2;
-            float stepX = w / mapWidth;
-            float stepY = h / mapWidth;
+            var mapWidth = Game.Map.MapWidth;
+            var mapHeight = Game.Map.MapHeight;
+            var centerY = _height / 2;
+            var centerX = _width / 2;
+            var stepX = _width / mapWidth;
+            var stepY = _height / mapWidth;
+            var step = stepX > stepY ? stepY : stepX;
             
-            var center = new Vector2(centerX, centerY);
-
             // Draw World Bounds
-            float worldLeft = centerX - centerY;
-            float worldTop = 1;
-            float worldRight = centerX + centerY;
-            float worldBottom = h;
-
-            float startX = worldLeft;
-            float startY = worldTop;
+            var worldLeft = centerX - centerY;
+            var worldTop = 1;
+            var startX = 0;
+            var startY = 0;
 
 
             // Draw Map Walls 
@@ -291,43 +283,46 @@ namespace RayCaster01
                 {
                     if (Game.Map.GetBlock(x, y) > 0)
                     {
-                        var color = Game.Map.GetBlock(x, y);
-                        var texture = color - 1;
+                        var textureIndex = Game.Map.GetBlock(x, y) - 1;
 
-                        var screen = new Rectangle((int)startX, (int)startY, (int)stepX, (int)stepY);
-                        var textureRect = new Rectangle(0, 0, 64, 64);
-                        DrawTexture(texture, screen, textureRect, 0);
-                        //DrawLine(startX, startY, startX + step, startY + step, color);
-                        //DrawLine(startX + step, startY, startX, startY + step, color);
+                        var screen = new Rectangle(startX, startY, step, step);
+                        var textureRect = new Rectangle(0, 0, _textureWidth, _textureHeight);
+                        DrawTexture(textureIndex, screen, textureRect, 0);
                     }
-                    startX += stepX;
+                    startX += step;
                 }
-                startY += stepY;
-
-                //DrawLine(worldLeft, startY, worldRight, startY, Color.Gray);
-                //DrawLine(startX, worldTop, startX, worldBottom, Color.Gray);
+                startY += step;
             }
 
         }
 
         private void DrawPlayer()
         {
-            float h = Game.ScreenHeight;
-            float w = Game.ScreenWidth;
-            float centerY = h / 2;
-            float centerX = w / 2;
-            float step = h / 24;
+            var centerY = _height / 2;
+            var centerX = _width / 2;
+            var step = _height / Game.Map.MapWidth;
 
             // Draw World Bounds
-            float worldLeft = centerX - centerY;
-            float worldTop = 1;
-            float worldRight = centerX + centerY;
-            float worldBottom = h;
+            var worldLeft = centerX - centerY;
+            var worldTop = 1;
+            var worldRight = centerX + centerY;
+            var worldBottom = _height;
+            var origin = new Vector2(worldLeft, worldTop);
 
             // Draw Player Position 
-            var player = new Vector2(this.Game.Player.Position.X * step + worldLeft, this.Game.Player.Position.Y * step + worldTop);
-            var offset = new Vector2(player.X + (Game.Player.Direction.X * 10), player.Y + (Game.Player.Direction.Y * 10));
+            var player = Game.Player.Position.Multiply(step).Add(origin);
+
+            // Forward Offset
+            var offset = Game.Player.Direction.Multiply(10).Add(player);
+            
+            // Arrow points 
+            var leftArrow = Game.Player.Direction.Rotate((float)Math.PI / 4).Multiply(-5).Add(offset);
+            var rightArrow = Game.Player.Direction.Rotate(-(float)Math.PI / 4).Multiply(-5).Add(offset);
+
+            // Draw
             DrawLine(player, offset, Color.Yellow);
+            DrawLine(leftArrow, offset, Color.Yellow);
+            DrawLine(rightArrow, offset, Color.Yellow);
         }
 
         private void DrawWallStrip(RayHit hit)
